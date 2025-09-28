@@ -1,16 +1,30 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { ChatMessageComponent } from '../chat-message/chat-message.component';
 import { ChatInputComponent } from '../chat-input/chat-input.component';
 import { ChatService } from '../../core/services/chat.service';
-import { ChatMessage } from '../../core/interfaces/chat.interface';
+import { ChatMessage, Model } from '../../core/interfaces/chat.interface';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-chat-container',
     standalone: true,
-    imports: [CommonModule, ChatMessageComponent, ChatInputComponent],
+    imports: [CommonModule, FormsModule, MatFormFieldModule, MatSelectModule, ChatMessageComponent, ChatInputComponent],
     template: `
         <div class="chat-container">
+            <div class="header">
+                <mat-form-field>
+                    <mat-label>Select a model</mat-label>
+                    <mat-select [(ngModel)]="selectedModel">
+                        @for (model of models; track model.id) {
+                            <mat-option [value]="model.id">{{ model.id }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
             <div class="messages" #messagesContainer>
                 @for (message of messages; track message.timestamp) {
                     <app-chat-message [message]="message" />
@@ -27,6 +41,11 @@ import { ChatMessage } from '../../core/interfaces/chat.interface';
             background-color: white;
         }
 
+        .header {
+            padding: 1rem;
+            border-bottom: 1px solid #ccc;
+        }
+
         .messages {
             flex: 1;
             overflow-y: auto;
@@ -36,6 +55,8 @@ import { ChatMessage } from '../../core/interfaces/chat.interface';
 })
 export class ChatContainerComponent implements OnInit {
     messages: ChatMessage[] = [];
+    models: Model[] = [];
+    selectedModel: string = environment.modelName;
 
     constructor(private chatService: ChatService) {}
 
@@ -45,6 +66,15 @@ export class ChatContainerComponent implements OnInit {
             role: 'system',
             content: 'You are a helpful assistant.',
             timestamp: new Date()
+        });
+
+        this.chatService.getModels().subscribe({
+            next: (modelList) => {
+                this.models = modelList.data;
+            },
+            error: (error) => {
+                console.error('Error getting models:', error);
+            }
         });
     }
 
@@ -58,7 +88,7 @@ export class ChatContainerComponent implements OnInit {
         this.messages.push(userMessage);
 
         // Get response from API
-        this.chatService.sendMessage(this.messages).subscribe({
+        this.chatService.sendMessage(this.messages, this.selectedModel).subscribe({
             next: (response) => {
                 if (response.choices && response.choices.length > 0) {
                     const assistantMessage: ChatMessage = {

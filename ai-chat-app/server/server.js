@@ -26,6 +26,20 @@ app.post('/v1/chat/completions', async (req, res) => {
   }
 });
 
+app.get('/v1/models', async (req, res) => {
+  try {
+    const response = await axios.get('http://localhost:12434/engines/llama.cpp/v1/models');
+    res.status(response.status).send(response.data);
+  } catch (error) {
+    console.error('Error proxying request:', error);
+    if (error.response) {
+      res.status(error.response.status).send(error.response.data);
+    } else {
+      res.status(500).send({ error: 'An internal server error occurred' });
+    }
+  }
+});
+
 app.listen(port, () => {
   console.log(`Proxy server listening at http://localhost:${port}`);
 });

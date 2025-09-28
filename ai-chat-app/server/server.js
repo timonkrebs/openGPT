@@ -10,7 +10,7 @@ app.use(express.json());
 
 app.post('/v1/chat/completions', async (req, res) => {
   try {
-    const response = await axios.post('http://localhost:8080/v1/chat/completions', req.body, {
+    const response = await axios.post('http://localhost:12434/engines/llama.cpp/v1/chat/completions', req.body, {
       headers: {
         'Content-Type': 'application/json'
       }

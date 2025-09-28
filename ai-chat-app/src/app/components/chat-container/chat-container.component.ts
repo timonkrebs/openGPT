@@ -42,8 +42,8 @@ export class ChatContainerComponent implements OnInit {
     ngOnInit() {
         // Add a welcome message
         this.messages.push({
-            role: 'assistant',
-            content: 'Hello! How can I help you today?',
+            role: 'system',
+            content: 'You are a helpful assistant.',
             timestamp: new Date()
         });
     }

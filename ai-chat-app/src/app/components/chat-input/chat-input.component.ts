@@ -12,7 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
         <div class="chat-input">
             <textarea
                 [(ngModel)]="message"
-                (keydown.enter)="onSubmit()"
+                (keydown.enter)="onSubmit($event)"
                 placeholder="Type your message here..."
                 rows="1"
                 [style.height]="textareaHeight"
@@ -57,14 +57,15 @@ export class ChatInputComponent {
     message = '';
     textareaHeight = '24px';
 
-    onSubmit(event?: KeyboardEvent) {
-        if (event) {
-            event.preventDefault();
+    onSubmit(event?: Event) {
+        if (event instanceof KeyboardEvent) {
             if (event.shiftKey) {
+                event.preventDefault();
                 return;
             }
+            event.preventDefault();
         }
-        
+
         if (this.message.trim()) {
             this.sendMessage.emit(this.message.trim());
             this.message = '';

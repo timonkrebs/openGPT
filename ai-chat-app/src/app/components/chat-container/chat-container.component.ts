@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatMessageComponent } from '../chat-message/chat-message.component';
 import { ChatInputComponent } from '../chat-input/chat-input.component';
@@ -34,19 +34,10 @@ import { ChatMessage } from '../../core/interfaces/chat.interface';
         }
     `]
 })
-export class ChatContainerComponent implements OnInit {
+export class ChatContainerComponent {
     messages: ChatMessage[] = [];
 
-    constructor(private chatService: ChatService) {}
-
-    ngOnInit() {
-        // Add a welcome message
-        this.messages.push({
-            role: 'system',
-            content: 'You are a helpful assistant.',
-            timestamp: new Date()
-        });
-    }
+    constructor(private chatService: ChatService) { }
 
     sendMessage(content: string) {
         // Add user message
@@ -58,7 +49,11 @@ export class ChatContainerComponent implements OnInit {
         this.messages.push(userMessage);
 
         // Get response from API
-        this.chatService.sendMessage(this.messages).subscribe({
+        this.chatService.sendMessage([{
+            role: 'system',
+            content: 'You are a helpful assistant.',
+            timestamp: new Date()
+        }, ...this.messages]).subscribe({
             next: (response) => {
                 if (response.choices && response.choices.length > 0) {
                     const assistantMessage: ChatMessage = {

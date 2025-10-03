@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +12,10 @@ import { MatButtonModule } from '@angular/material/button';
         <div class="chat-input">
             <textarea
                 [(ngModel)]="message"
+                (keydown.enter)="onSubmit()"
                 placeholder="Type your message here..."
+                rows="1"
+                [style.height]="textareaHeight"
             ></textarea>
             <button mat-icon-button color="primary" (click)="onSubmit()">
                 <mat-icon>send</mat-icon>
@@ -30,6 +33,7 @@ import { MatButtonModule } from '@angular/material/button';
             
             textarea {
                 flex: 1;
+                resize: none;
                 border: none;
                 border-radius: 0.5rem;
                 padding: 0.75rem;
@@ -50,7 +54,8 @@ import { MatButtonModule } from '@angular/material/button';
 export class ChatInputComponent {
     @Output() sendMessage = new EventEmitter<string>();
     
-    message = signal('');
+    message = '';
+    textareaHeight = '24px';
 
     onSubmit(event?: KeyboardEvent) {
         if (event) {
@@ -60,9 +65,10 @@ export class ChatInputComponent {
             }
         }
         
-        if (this.message().trim()) {
-            this.sendMessage.emit(this.message().trim());
-            this.message.set('');
+        if (this.message.trim()) {
+            this.sendMessage.emit(this.message.trim());
+            this.message = '';
+            this.textareaHeight = '24px';
         }
     }
 }

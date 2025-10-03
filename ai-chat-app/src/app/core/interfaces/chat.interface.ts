@@ -28,3 +28,15 @@ export interface ModelRunnerResponse {
         finish_reason: string;
     }[];
 }
+
+export interface Model {
+    id: string;
+    object: string;
+    owned_by: string;
+    permission: any[];
+}
+
+export interface ModelList {
+    object: string;
+    data: Model[];
+}

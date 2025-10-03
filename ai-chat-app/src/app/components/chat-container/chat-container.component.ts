@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -53,30 +53,12 @@ import { environment } from '../../../environments/environment';
         }
     `]
 })
-export class ChatContainerComponent implements OnInit {
+export class ChatContainerComponent {
     messages: ChatMessage[] = [];
     models: Model[] = [];
     selectedModel: string = environment.modelName;
 
-    constructor(private chatService: ChatService) {}
-
-    ngOnInit() {
-        // Add a welcome message
-        this.messages.push({
-            role: 'system',
-            content: 'You are a helpful assistant.',
-            timestamp: new Date()
-        });
-
-        this.chatService.getModels().subscribe({
-            next: (modelList) => {
-                this.models = modelList.data;
-            },
-            error: (error) => {
-                console.error('Error getting models:', error);
-            }
-        });
-    }
+    constructor(private chatService: ChatService) { }
 
     sendMessage(content: string) {
         // Add user message
@@ -88,7 +70,11 @@ export class ChatContainerComponent implements OnInit {
         this.messages.push(userMessage);
 
         // Get response from API
-        this.chatService.sendMessage(this.messages, this.selectedModel).subscribe({
+        this.chatService.sendMessage([{
+            role: 'system',
+            content: 'You are a helpful assistant.',
+            timestamp: new Date()
+        }, ...this.messages]).subscribe({
             next: (response) => {
                 if (response.choices && response.choices.length > 0) {
                     const assistantMessage: ChatMessage = {

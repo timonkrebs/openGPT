@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
 import { ChatContainerComponent } from './components/chat-container/chat-container.component';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [CommonModule, RouterOutlet, ChatContainerComponent],
+    imports: [CommonModule, ChatContainerComponent],
     template: `
         <app-chat-container />
     `,

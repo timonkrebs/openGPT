@@ -74,15 +74,17 @@ export class ChatContainerComponent implements OnInit {
     constructor(private chatService: ChatService) {
         effect(() => {
             if (this.messages()) {
-                this.scrollToBottom();
+                setTimeout(() => {
+                    this.scrollToBottom();
+                }, 100);
             }
         });
     }
 
     private scrollToBottom(): void {
         try {
-            this.messagesContainer.nativeElement.scroll({
-                top: this.messagesContainer.nativeElement.scrollHeight,
+            this.messagesContainer?.nativeElement.scroll({
+                top: this.messagesContainer.nativeElement.scrollHeight - this.messagesContainer.nativeElement.lastElementChild?.offsetHeight - 100,
                 left: 0,
                 behavior: 'smooth'
             });

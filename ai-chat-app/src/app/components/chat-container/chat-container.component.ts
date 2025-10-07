@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,7 +26,7 @@ import { environment } from '../../../environments/environment';
                 </mat-form-field>
             </div>
             <div class="messages" #messagesContainer>
-                @for (message of messages; track message.timestamp) {
+                @for (message of messages(); track message.timestamp) {
                     <app-chat-message [message]="message" />
                 }
             </div>
@@ -53,10 +53,22 @@ import { environment } from '../../../environments/environment';
         }
     `]
 })
-export class ChatContainerComponent {
-    messages: ChatMessage[] = [];
+export class ChatContainerComponent implements OnInit {
+    messages: WritableSignal<ChatMessage[]> = signal([]);
     models: Model[] = [];
     selectedModel: string = environment.modelName;
+
+    ngOnInit() {
+
+        this.chatService.getModels().subscribe({
+            next: (modelList) => {
+                this.models = modelList.data;
+            },
+            error: (error) => {
+                console.error('Error getting models:', error);
+            }
+        });
+    }
 
     constructor(private chatService: ChatService) { }
 
@@ -67,14 +79,14 @@ export class ChatContainerComponent {
             content,
             timestamp: new Date()
         };
-        this.messages.push(userMessage);
+        this.messages.set([...this.messages(), userMessage]);
 
         // Get response from API
         this.chatService.sendMessage([{
             role: 'system',
             content: 'You are a helpful assistant.',
             timestamp: new Date()
-        }, ...this.messages]).subscribe({
+        }, ...this.messages()], this.selectedModel).subscribe({
             next: (response) => {
                 if (response.choices && response.choices.length > 0) {
                     const assistantMessage: ChatMessage = {
@@ -82,16 +94,16 @@ export class ChatContainerComponent {
                         content: response.choices[0].message.content,
                         timestamp: new Date()
                     };
-                    this.messages.push(assistantMessage);
+                    this.messages.set([...this.messages(), assistantMessage]);
                 }
             },
             error: (error) => {
                 console.error('Error getting response:', error);
-                this.messages.push({
+                this.messages.set([...this.messages(), {
                     role: 'assistant',
                     content: 'Sorry, I encountered an error. Please try again.',
                     timestamp: new Date()
-                });
+                }]);
             }
         });
     }

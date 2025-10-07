@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -54,7 +54,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class ChatInputComponent {
     @Output() sendMessage = new EventEmitter<string>();
     
-    message = '';
+    message = signal('');
     textareaHeight = '24px';
 
     onSubmit(event?: Event) {
@@ -66,9 +66,9 @@ export class ChatInputComponent {
             event.preventDefault();
         }
 
-        if (this.message.trim()) {
-            this.sendMessage.emit(this.message.trim());
-            this.message = '';
+        if (this.message().trim()) {
+            this.sendMessage.emit(this.message().trim());
+            this.message.set('');
             this.textareaHeight = '24px';
         }
     }

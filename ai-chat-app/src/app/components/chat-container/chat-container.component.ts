@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, effect, ElementRef, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -54,6 +54,7 @@ import { environment } from '../../../environments/environment';
     `]
 })
 export class ChatContainerComponent implements OnInit {
+    @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
     messages: WritableSignal<ChatMessage[]> = signal([]);
     models: Model[] = [];
     selectedModel: string = environment.modelName;
@@ -70,7 +71,25 @@ export class ChatContainerComponent implements OnInit {
         });
     }
 
-    constructor(private chatService: ChatService) { }
+    constructor(private chatService: ChatService) {
+        effect(() => {
+            if (this.messages()) {
+                this.scrollToBottom();
+            }
+        });
+    }
+
+    private scrollToBottom(): void {
+        try {
+            this.messagesContainer.nativeElement.scroll({
+                top: this.messagesContainer.nativeElement.scrollHeight,
+                left: 0,
+                behavior: 'smooth'
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    }
 
     sendMessage(content: string) {
         // Add user message

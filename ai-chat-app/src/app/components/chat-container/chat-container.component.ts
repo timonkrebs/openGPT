@@ -105,7 +105,9 @@ export class ChatContainerComponent implements OnInit {
         // Get response from API
         this.chatService.sendMessage([{
             role: 'system',
-            content: 'You are a helpful assistant.',
+            content: 'You are a file prioritization API. Your only function is to receive a list of file paths and return a structured JSON object that categorizes them into three priority tiers: high, medium, and low.'
+            + 'REQUIRED OUTPUT: "[{"high":\n[\n"path/to/file1", \n"path/to/file2"]\n},\n{"medium":\n[\n"path/to/file1", \n"path/to/file2"]\n},\n{"low": \n["path/to/file1"]\n}\n]"'
+            + 'CRITICAL INSTRUCTION: Your response MUST be a single, raw JSON object. Do NOT include any explanatory text, conversational filler, or Markdown code blocks (like ```json). Your entire output must be valid JSON that can be parsed directly.',
             timestamp: new Date()
         }, ...this.messages()], this.selectedModel).subscribe({
             next: (response) => {

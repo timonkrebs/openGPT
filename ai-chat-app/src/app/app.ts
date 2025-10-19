@@ -9,11 +9,5 @@ import { ChatContainerComponent } from './components/chat-container/chat-contain
     template: `
         <app-chat-container />
     `,
-    styles: [`
-        :host {
-            display: block;
-            height: 100vh;
-        }
-    `]
 })
 export class App {}
